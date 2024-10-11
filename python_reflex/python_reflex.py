@@ -1,36 +1,37 @@
-"""Welcome to Reflex! This file outlines the steps to create a basic app."""
-
 import reflex as rx
 
-from rxconfig import config
-
-
-class State(rx.State):
-    count: int = 0
-
-    def increment(self):
-        self.count += 1
-
-    def decrement(self):
-        self.count -= 1
+class FormState(rx.State):
+    todos: list = []
+    def handle_submit(self, form_data: dict):
+        self.todos.append(form_data)
 
 def index() -> rx.Component:
-    # Welcome Page (Index)
-    return rx.hstack(
-        rx.button(
-            "Decrement",
-            color_scheme="ruby",
-            on_click=State.decrement,
+    return rx.vstack(
+        rx.heading("Neue Aufgabe"),
+        rx.form(
+            rx.vstack(
+                rx.input(
+                    placeholder="Aufgabe",
+                    name="title",
+                ),
+                rx.input(
+                    placeholder="Fälligkeitstermin",
+                    name="due_date",
+                ),
+                rx.hstack(
+                    rx.checkbox("Erledigt", name="check")
+                ),
+                rx.button("Hinzufügen", type="submit"),
+                ),
+            on_submit=FormState.handle_submit,
+            reset_on_submit=True,
         ),
-        rx.heading(State.count, font_size="2em"),
-        rx.button(
-            "Increment",
-            color_scheme="grass",
-            on_click=State.increment,
-        ),
-        spacing="4",
+    rx.divider(),
+    rx.heading("Alle Aufgaben"),
+    rx.text(FormState.todos.to_string()),
+    padding="2em",
     )
-
+    
 
 app = rx.App()
 app.add_page(index)
